@@ -9,7 +9,7 @@ entity rotLED is
   port (
 	clk50	: in std_logic;
 	speed	: in std_logic;
-	dir		: in std_logic;
+	dir	: in std_logic;
 	leds	: out std_logic_vector(7 downto 0)
   ) ;
 
@@ -22,8 +22,7 @@ architecture arch of rotLED is
 	signal regClock : std_logic;
 begin
 	leds <= led_state;
-	regClock <= clk10 when speed = '1' else clk1;
-
+	regClock <= clk10 when speed = '0' else clk1;
 	configClock : clk_div
 	port map(
 		clock_50mhz		=> clk50,
@@ -39,8 +38,8 @@ begin
 	port map(
 		clock 	=> regClock,
 		dir 	=> dir,
-		set 	=> '0'
-		inReg	=> (others => '0')
+		set 	=> '0',
+		inReg	=> (others => '0'),
 		q		=> led_state
 		);
 end architecture ; -- arch

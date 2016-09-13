@@ -9,25 +9,25 @@ entity rotRegister is
   	size : integer range 2 to 256 := 8
   	);
   port (
-	clock 	: in std_logic;
+	clock : in std_logic;
 	dir 	: in std_logic; --set the rotation direction, 1 for right, 0 for left
 	set 	: in std_logic; --strobe to set q to inReg
-	inReg	: in std_logic_vector(size -1 downto 0);
-	q		: out std_logic_vector(size-1 downto 0) := (0 =>'1', others => '0') --default value
+	inReg	: in std_logic_vector(size -1 downto 0); --set starting registers
+	q		: out std_logic_vector(size-1 downto 0)
   ) ;
 end entity ; -- rotRegister
 
 architecture arch of rotRegister is
-	signal currReg : std_logic_vector(size-1 downto 0);
+	signal currReg : std_logic_vector(size-1 downto 0) := (0 =>'1', others => '0'); --default value
 begin
-	reg <= currReg;
+	q <= currReg;
 
 	process(clock, set)
 	begin
 		if set = '1' then --blocking async input
 			currReg <= inReg;
 		elsif rising_edge(clock) then --rotation code
-			case dir
+			case dir is
 				when '0' =>
 					currReg <= currReg(size-2 downto 0) & currReg(size-1);
 				when others =>

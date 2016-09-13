@@ -21,20 +21,19 @@ begin
 	process(clk100)
 	begin
 		if rising_edge(clk100) then
-			if (pulse_counter = 249 and foursec = 3) then
+			if (pulse_counter = 255 and foursec = 3) then --wrap the pulse counter
 				pulse_counter <= "00000000";
 			else
-				if FourSec = 0 then
+				if FourSec = 0 then  --increment pulse_counter every .04 seconds (since 10/255 ~= .04)
 					pulse_counter <= pulse_counter + 1;
 				end if;
 				
-				if pulse_counter < unsigned(cycle) then
+				if pulse_counter < unsigned(cycle) then --check what part 
 					led <= '1';
 				else
 					led <= '0';
 				end if;
 			end if;	
-			
 			FourSec<=FourSec+1;
 		end if;	
 	end process;
