@@ -7,7 +7,10 @@ entity shift74164 is
 	A 		: in std_logic;
 	B 		: in std_logic;
 	clk 	: in std_logic;
+
+	--Active low clear
 	clr_n 	: in std_logic;
+	
 	--Q outputs broken out to match datasheet
 	Qa		: out std_logic;
 	Qb		: out std_logic;
