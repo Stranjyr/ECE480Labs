@@ -2,42 +2,42 @@ library ieee;
 use ieee.std_logic_1164.all;
 
 entity decode is
-	Port (G1_n,G2_n:	in std_logic;
-			ABCD		:	in std_logic_vector(3 downto 0);
-			q			:	out std_logic_vector(0 to 15));
+	Port (G1_n,G2_n:	in std_logic;							--Enable inputs
+			ABCD		:	in std_logic_vector(3 downto 0);	--4-bit input to be decoded
+			q			:	out std_logic_vector(0 to 15));	--decoded 16 bit output
 end decode;
 
 architecture behavior of decode is
 
-			signal a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p : std_logic :='1';
+
 
 begin
-	q<=a&b&c&d&e&f&g&h&i&j&k&l&m&n&o&p;
-	
-	process (G1_n,G2_n,ABCD)
+
+	process (G1_n,G2_n,ABCD)									--process triggered on changing enables or inputs
 	begin
-		if (G1_n = '0' and G2_n='0') then
+		if (G1_n = '0' and G2_n='0') then					--if both enable bits are low
 			
-			case ABCD is
-				when "0000"=> a<='0';
-				when "0001"=> b<='0';
-				when "0010"=> c<='0';
-				when "0011"=> d<='0';
-				when "0100"=> e<='0';
-				when "0101"=> f<='0';
-				when "0110"=> g<='0';
-				when "0111"=> h<='0';
-				when "1000"=> i<='0';
-				when "1001"=> j<='0';
-				when "1010"=> k<='0';
-				when "1011"=> l<='0';
-				when "1100"=> m<='0';
-				when "1101"=> n<='0';
-				when "1110"=> o<='0';
-				when "1111"=> p<='0';
-				when others=> null;
+			case ABCD is											--For each possible input, a single output bit is
+				when "0000"=> q<=(0=>'0',others =>'1');	--driven low while all others are driven high
+				when "0001"=> q<=(1=>'0',others =>'1');
+				when "0010"=> q<=(2=>'0',others =>'1');
+				when "0011"=> q<=(3=>'0',others =>'1');
+				when "0100"=> q<=(4=>'0',others =>'1');
+				when "0101"=> q<=(5=>'0',others =>'1');
+				when "0110"=> q<=(6=>'0',others =>'1');
+				when "0111"=> q<=(7=>'0',others =>'1');
+				when "1000"=> q<=(8=>'0',others =>'1');
+				when "1001"=> q<=(9=>'0',others =>'1');
+				when "1010"=> q<=(10=>'0',others =>'1');
+				when "1011"=> q<=(11=>'0',others =>'1');
+				when "1100"=> q<=(12=>'0',others =>'1');
+				when "1101"=> q<=(13=>'0',others =>'1');
+				when "1110"=> q<=(14=>'0',others =>'1');
+				when "1111"=> q<=(15=>'0',others =>'1');
+				when others=> null;								--There are no other cases
 			end case;
-		else null;
+		else q<=(others=>'1');									--If either enable bit is high, all outputs are high
+		
 		end if;
 	end process;
 end architecture;
