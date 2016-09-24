@@ -44,13 +44,13 @@ begin
 		ALU_Out_8<=
 						std_logic_vector(unsigned(FF_Out_8) + unsigned(ALUin)) 	when "0000", -- A+B
 						std_logic_vector(unsigned(FF_Out_8) - unsigned(ALUin)) 	when "0001", -- A-B
-						FF_Out_8 AND ALUin					 	 							when "0010", -- A AND B
-						FF_Out_8 OR ALUin						 	 							when "0011", -- A OR B
-						'0'&ALUin(7 downto 1)				 								when "0100", -- Shift B Right
-						ALUin(7)&ALUin(7 downto 1)			  	 							when "0101", -- Arithmatic Shift B Right
-						ALUin(6 downto 0)&'0'				  	 							when "0110", -- Shift B Left
-						NOT ALUin								  	 							when "0111", -- NOT B
-						ALUin 									  	 							when "1000", -- C=B
-						std_logic_vector(unsigned(ALUin)+1)								when "1001", --Increment B
-						ALU_Out_8								  	 							when others; --If none of these, change nothing
+						FF_Out_8 AND ALUin					 	 				when "0010", -- A AND B
+						FF_Out_8 OR ALUin						 	 			when "0011", -- A OR B
+						'0'&ALUin(7 downto 1)				 					when "0100", -- Shift B Right
+						ALUin(7)&ALUin(7 downto 1)			  	 				when "0101", -- Arithmatic Shift B Right
+						ALUin(6 downto 0)&'0'				  	 				when "0110", -- Shift B Left
+						NOT ALUin								  	 			when "0111", -- NOT B
+						ALUin 									  	 			when "1000", -- C=B
+						std_logic_vector(unsigned(ALUin)+1)						when "1001", --Increment B
+						ALU_Out_8								  	 			when others; --If none of these, change nothing
 end architecture;
