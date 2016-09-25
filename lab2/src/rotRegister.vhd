@@ -29,9 +29,9 @@ begin
 		elsif rising_edge(clock) then --rotation code
 			case dir is
 				when '0' =>
-					currReg <= currReg(size-2 downto 0) & currReg(size-1);
+					currReg <= currReg(size-2 downto 0) & currReg(size-1); 	--shifts left
 				when others =>
-					currReg <= currReg(0) & currReg(size-1 downto 1);
+					currReg <= currReg(0) & currReg(size-1 downto 1);		--shifts right
 				end case;
 			end if;
 		end process;

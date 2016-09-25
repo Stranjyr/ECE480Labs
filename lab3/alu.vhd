@@ -1,4 +1,4 @@
-library ieee;
+ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
@@ -22,8 +22,8 @@ begin
 	process(clk,Aen,ALU_CTLen,Cen) --FlipFlop Process
 		begin
 		if rising_edge(clk) then --Flipflop only moves on rising edge
-			if Aen = '1' then	 --If Flipflop A is enabled, push ALUin through
-				FF_Out_8<=ALUin;
+		if Aen = '1' then	 --If Flipflop A is enabled, push ALUin through
+			FF_Out_8<=ALUin;
 			else null;
 			end if;
 			
@@ -39,6 +39,8 @@ begin
 		else null;
 		end if;
 	end process;
+
+--	FF_Out_8<="10000101";
 	
 	with (ALU_CTL) select	--Function depending on control signal
 		ALU_Out_8<=
