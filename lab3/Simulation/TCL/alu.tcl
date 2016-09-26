@@ -9,10 +9,10 @@ delete wave *
 # All will have a binary radix, except for the signal 'count'.
 # See the ModelSim Command Reference Manual for additional options
 add wave -noupdate -binary /alu/clk
-add wave -noupdate -binary /alu/Aen
+add wave -noupdate -binary /alu/Aen_n
 add wave -noupdate -hex /alu/ALU_CTL
-add wave -noupdate -binary /alu/ALU_CTLen
-add wave -noupdate -binary /alu/Cen
+add wave -noupdate -binary /alu/ALU_CTLen_n
+add wave -noupdate -binary /alu/Cen_n
 add wave -noupdate -binary /alu/ALUin
 add wave -noupdate -binary /alu/ALUout
 add wave -noupdate -binary /alu/FF_Out_8
@@ -20,15 +20,15 @@ force -freeze clk 0 0 ns, 1 10 ns -repeat 20 ns
 
 # Force the named inputs to specific values
 run 15 ns ;#15 ns clk on
-force Aen 2#1 -deposit
+force Aen_n 2#0 -deposit
 force ALUin 2#10000101 -deposit
 
 run 30 ns ;#45 ns clk off
-force Aen 2#0 -deposit
+force Aen_n 2#1 -deposit
 force ALUin 2#10000011
 run 20 ns ;#65 ns clk off
-force ALU_CTLen 2#1 -deposit
-force Cen 2#1 -deposit
+force ALU_CTLen_n 2#0 -deposit
+force Cen_n 2#0 -deposit
 
 
 
