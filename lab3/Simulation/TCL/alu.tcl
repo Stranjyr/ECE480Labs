@@ -14,9 +14,9 @@ add wave -noupdate -hex /alu/ALU_CTL
 add wave -noupdate -binary /alu/ALU_CTLen_n
 add wave -noupdate -binary /alu/Cen_n
 add wave -noupdate -binary /alu/ALUin
-add wave -noupdate -binary /alu/ALUout
 add wave -noupdate -binary /alu/A
 add wave -noupdate -binary /alu/B
+add wave -noupdate -binary /alu/ALUout
 force -freeze clk 0 0 ns, 1 10 ns -repeat 20 ns
 
 # Force the named inputs to specific values
@@ -25,7 +25,7 @@ force Cen_n 1
 force ALU_CTLen_n 1
 force ALUin 0#10
 run 20 ns
-force Aen 0
+force Aen_n 0
 force ALUin 10000101
 run 20 ns
 
@@ -34,7 +34,7 @@ force ALU_CTLen_n 0
 force ALUin 00000000
 run 20 ns
 force ALU_CTLen_n 1
-foce Cen_n 0
+force Cen_n 0
 force ALUin 10000011
 run 20 ns
 
@@ -43,7 +43,7 @@ force ALU_CTLen_n 0
 force ALUin 00000001
 run 20 ns
 force ALU_CTLen_n 1
-foce Cen_n 0
+force Cen_n 0
 force ALUin 10000011
 run 20 ns
 
@@ -52,7 +52,7 @@ force ALU_CTLen_n 0
 force ALUin 00000010
 run 20 ns
 force ALU_CTLen_n 1
-foce Cen_n 0
+force Cen_n 0
 force ALUin 10000011
 run 20 ns
 
@@ -61,7 +61,7 @@ force ALU_CTLen_n 0
 force ALUin 00000011
 run 20 ns
 force ALU_CTLen_n 1
-foce Cen_n 0
+force Cen_n 0
 force ALUin 10000011
 run 20 ns
 
@@ -70,7 +70,7 @@ force ALU_CTLen_n 0
 force ALUin 00000100
 run 20 ns
 force ALU_CTLen_n 1
-foce Cen_n 0
+force Cen_n 0
 force ALUin 10000011
 run 20 ns
 
@@ -79,7 +79,7 @@ force ALU_CTLen_n 0
 force ALUin 00000101
 run 20 ns
 force ALU_CTLen_n 1
-foce Cen_n 0
+force Cen_n 0
 force ALUin 10000011
 run 20 ns
 
@@ -88,7 +88,7 @@ force ALU_CTLen_n 0
 force ALUin 00000110
 run 20 ns
 force ALU_CTLen_n 1
-foce Cen_n 0
+force Cen_n 0
 force ALUin 10000011
 run 20 ns
 
@@ -97,8 +97,17 @@ force ALU_CTLen_n 0
 force ALUin 00000111
 run 20 ns
 force ALU_CTLen_n 1
-foce Cen_n 0
-force ALUin 10001000
+force Cen_n 0
+force ALUin 10000011
+run 20 ns
+
+force Cen_n 1
+force ALU_CTLen_n 0
+force ALUin 00001000
+run 20 ns
+force ALU_CTLen_n 1
+force Cen_n 0
+force ALUin 10000011
 run 20 ns
 
 force Cen_n 1
@@ -106,7 +115,7 @@ force ALU_CTLen_n 0
 force ALUin 00001001
 run 20 ns
 force ALU_CTLen_n 1
-foce Cen_n 0
+force Cen_n 0
 force ALUin 10000011
 run 20 ns
 
@@ -130,7 +139,7 @@ configure wave -gridperiod 1
 configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
-# Run for an additional 35 ns
+
 run 35 ns
 # Restore the waveform zoom level to the the first 350 ns
 WaveRestoreZoom {0 ns} {350 ns}
