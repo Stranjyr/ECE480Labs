@@ -15,43 +15,101 @@ add wave -noupdate -binary /alu/ALU_CTLen_n
 add wave -noupdate -binary /alu/Cen_n
 add wave -noupdate -binary /alu/ALUin
 add wave -noupdate -binary /alu/ALUout
-add wave -noupdate -binary /alu/FF_Out_8
+add wave -noupdate -binary /alu/A
+add wave -noupdate -binary /alu/B
 force -freeze clk 0 0 ns, 1 10 ns -repeat 20 ns
 
 # Force the named inputs to specific values
-run 15 ns ;#15 ns clk on
-force Aen_n 2#0 -deposit
-force ALUin 2#10000101 -deposit
+force Aen_n 1
+force Cen_n 1
+force ALU_CTLen_n 1
+force ALUin 0#10
+run 20 ns
+force Aen 0
+force ALUin 10000101
+run 20 ns
 
-run 30 ns ;#45 ns clk off
-force Aen_n 2#1 -deposit
-force ALUin 2#10000011
-run 20 ns ;#65 ns clk off
-force ALU_CTLen_n 2#0 -deposit
-force Cen_n 2#0 -deposit
+force Aen_n 1
+force ALU_CTLen_n 0
+force ALUin 00000000
+run 20 ns
+force ALU_CTLen_n 1
+foce Cen_n 0
+force ALUin 10000011
+run 20 ns
 
+force Cen_n 1
+force ALU_CTLen_n 0
+force ALUin 00000001
+run 20 ns
+force ALU_CTLen_n 1
+foce Cen_n 0
+force ALUin 10000011
+run 20 ns
 
+force Cen_n 1
+force ALU_CTLen_n 0
+force ALUin 00000010
+run 20 ns
+force ALU_CTLen_n 1
+foce Cen_n 0
+force ALUin 10000011
+run 20 ns
 
-force ALU_CTL 10#0 -deposit
-run 20 ns ;#85 clk off
-force ALU_CTL 10#1 -deposit
-run 20 ns ;#105 clk off
-force ALU_CTL 10#2 -deposit
-run 20 ns ;#125 clk off
-force ALU_CTL 10#3 -deposit
-run 20 ns ;#145 clk off
-force ALU_CTL 10#4 -deposit
-run 20 ns ;#165 clk off
-force ALU_CTL 10#5 -deposit
-run 20 ns ;#185 clk off
-force ALU_CTL 10#6 -deposit
-run 20 ns ;#205 clk off
-force ALU_CTL 10#7 -deposit
-run 20 ns ;#225 clk off
-force ALU_CTL 10#8 -deposit
-run 20 ns ;#245 clk off
-force ALU_CTL 10#9 -deposit
-run 20 ns ;#265 clk off
+force Cen_n 1
+force ALU_CTLen_n 0
+force ALUin 00000011
+run 20 ns
+force ALU_CTLen_n 1
+foce Cen_n 0
+force ALUin 10000011
+run 20 ns
+
+force Cen_n 1
+force ALU_CTLen_n 0
+force ALUin 00000100
+run 20 ns
+force ALU_CTLen_n 1
+foce Cen_n 0
+force ALUin 10000011
+run 20 ns
+
+force Cen_n 1
+force ALU_CTLen_n 0
+force ALUin 00000101
+run 20 ns
+force ALU_CTLen_n 1
+foce Cen_n 0
+force ALUin 10000011
+run 20 ns
+
+force Cen_n 1
+force ALU_CTLen_n 0
+force ALUin 00000110
+run 20 ns
+force ALU_CTLen_n 1
+foce Cen_n 0
+force ALUin 10000011
+run 20 ns
+
+force Cen_n 1
+force ALU_CTLen_n 0
+force ALUin 00000111
+run 20 ns
+force ALU_CTLen_n 1
+foce Cen_n 0
+force ALUin 10001000
+run 20 ns
+
+force Cen_n 1
+force ALU_CTLen_n 0
+force ALUin 00001001
+run 20 ns
+force ALU_CTLen_n 1
+foce Cen_n 0
+force ALUin 10000011
+run 20 ns
+
 
 
 # Update all waveforms in the wave pane
