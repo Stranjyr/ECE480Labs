@@ -86,13 +86,13 @@ begin
 	--Seven Segment Setup
 	data_out_ss: sevenSeg_2bit
 	port map(
-		value => mem_output,
+		value =>"00" & mem_output,
 		segments => sevenSeg(13 downto 0)
 		);
 	
 	rd_addr_ss : sevenSeg_2bit
 	port map(
-		value => mem_rd_addr,
+		value => "00" & mem_rd_addr,
 		segments => sevenSeg(27 downto 14)
 		);
 
