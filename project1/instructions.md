@@ -32,6 +32,17 @@ As we add instructions, we will put them here
 
 ##Instruction Formats
 As we create new formats, we will put them here
+###Regular Format (R format)
+| Op Code | $R     | Addr            |
+|---------|--------|-----------------|
+| 5 Bits  | 1 Bit  | 10 Bits         |
+
+- Op Code is the 5 bit op code
+- R is the value of the general use register to use
+- Addr is the address to use in memory
+
+This format is the default format for the 480 project UC. It can only access the 2 general use registers, but is good for operations requiring use of the RAM memory.  
+
 ###Direct Register (D Format)
 | Op Code | $SDL   | $SDR   | $SDG   | 
 |---------|--------|--------|--------|
@@ -41,6 +52,7 @@ As we create new formats, we will put them here
 - SDL is the desitination Register  
 - SDR is the Direct Register  
 - SDG is the General Register  
+
 This format is used for opperations directly on the full list of registers. SDL and SDR are any register in the table, and SDG is any of the general, saved, or temporary registers.  
 
 ###Immediate Format (I Format)
@@ -51,6 +63,7 @@ This format is used for opperations directly on the full list of registers. SDL 
 - Op Code is the 5 bit op code
 - SDL is the desination register
 - Immediate is the Immediate value to process
+
 This format is used for operations that need easy access to an immediate value without resorting to memory lookup.  
 
 ##Quick Reference
