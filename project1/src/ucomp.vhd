@@ -59,7 +59,7 @@ architecture arch of ucomp is
 begin
 	--This will synthisize out, but renaming the pc makes
 	--it easier to program
-	pc <= register_array(4);
+	pc <= register_array(10);
 
 	--Main loop for processing instructions.
 	mainLoop : process(clock)
@@ -111,7 +111,7 @@ begin
 						instr_step <= 1;
 					when 1 =>
 						--to write pc, use its register reference
-						register_array(4) <= mem_data_rd;
+						register_array(10) <= mem_data_rd;
 						instr_step <= 0;
 						--don't advance the pc: we just set it!
 				end case;
@@ -128,7 +128,7 @@ begin
 						end if;
 					when 1 =>
 						--to write pc, use its register reference
-						register_array(4) <= mem_data_rd;
+						register_array(10) <= mem_data_rd;
 						instr_step <= 0;
 						--don't advance the pc: we just set it!
 				end case;
@@ -185,7 +185,7 @@ begin
 						end if;
 					when 1 =>
 						--to write pc, use its register reference
-						register_array(4) <= mem_data_rd;
+						register_array(10) <= mem_data_rd;
 						instr_step <= 0;
 						--don't advance the pc: we just set it!
 				end case;
@@ -202,7 +202,7 @@ begin
 						end if;
 					when 1 =>
 						--to write pc, use its register reference
-						register_array(4) <= mem_data_rd;
+						register_array(10) <= mem_data_rd;
 						instr_step <= 0;
 						--don't advance the pc: we just set it!
 				end case;
@@ -226,7 +226,7 @@ begin
 
 		--Advance the pc if needed
 		if pc_advance = '1' then
-			register_array(4) <= register_array(4) + 1;
+			register_array(10) <= register_array(10) + 1;
 			pc_advance <= '0';
 		end if;
 	end process;
