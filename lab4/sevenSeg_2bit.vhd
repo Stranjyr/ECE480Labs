@@ -4,12 +4,14 @@ use ieee.numeric_std.all;
 
 entity sevenSeg_2bit is
   port (
-	value : in unsigned(7 downto 0);
+	input : in unsigned(5 downto 0);
 	segments : out std_logic_vector(13 downto 0)
   ) ;
 end entity ; -- sevenSeg
 
-architecture arch of sevenSeg is
+architecture arch of sevenSeg_2bit is
+	signal fixed    : unsigned(7 downto 0);
+	signal inverted : std_logic_vector(13 downto 0);
 	signal upperSeg : unsigned(3 downto 0);
 	signal lowerSeg : unsigned(3 downto 0);
 	--sevenseg table
@@ -35,10 +37,12 @@ architecture arch of sevenSeg is
 	--E : 1111001
 	--F : 1110001
 begin
-	upperSeg <= value(7 downto 4);
-	lowerSeg <= value(3 downto 0);
+	fixed 	<= "00" & input;
+	segments <=not(inverted);
+	upperSeg <= fixed(7 downto 4);
+	lowerSeg <= fixed(3 downto 0);
 	with upperSeg select
-		segments(13 downto 7) <= "0111111" when x"0",
+		inverted(13 downto 7) <= "0111111" when x"0",
 								 "0000110" when x"1",
 								 "1011011" when x"2",
 								 "1001111" when x"3",
@@ -56,7 +60,7 @@ begin
 								 "1110001" when x"F",
 								 "0000000" when others;
 	with lowerSeg select
-		segments(6 downto 0) <=  "0111111" when x"0",
+		inverted(6 downto 0) <=  "0111111" when x"0",
 								 "0000110" when x"1",
 								 "1011011" when x"2",
 								 "1001111" when x"3",
