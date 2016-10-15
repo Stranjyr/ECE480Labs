@@ -27,9 +27,18 @@ They are all in R format.
 As we add instructions, we will put them here
 
 
-| Name  | OP Code | Format |Notes                  |
-|-------|---------|--------|-----------------------|
+| Name   | OP Code | Format |Notes                  |
+|--------|---------|--------|-----------------------|
+| ADD_i  | 10000   | R      | Add val Addr to R     |
+| ADDe_i | 10001   | I      | Add imid to SDL       |
+| ADDe_r | 10010   | D      | Add SDR, SDG, Put SDL |
+| SUB_i  | 10011   | R      | Sub val addr from R   |
+| SUBe_i | 10100   | I      | Sub imid from SDL     |
+| SUBe_r | 10101   | D      | SDL <= SDR-SDG        |
+| LW     | 10110   | D      | SDL <= SDR[SDG]       |
+| SW     | 10111   | D      | SDR[SDG] <= SDL       |
 
+  
 ##Instruction Formats
 As we create new formats, we will put them here
 ###Regular Format (R format)

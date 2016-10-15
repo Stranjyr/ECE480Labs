@@ -1,7 +1,11 @@
 '''
+--------------------------------------------------------
+
 480 Assembler
 (C) 2016 William Hampton
 wchampton@crimson.ua.edu
+
+--------------------------------------------------------
 
 Usage:
 This program will assemble assembly language text files
@@ -56,6 +60,8 @@ add 0 xAA
 str 1 xAB
 LDR 0 x31A 
 jmp x3FF --x3FF fills all 10 digits of the address
+
+-------------------------------------------------------
 '''
 
 
@@ -101,20 +107,52 @@ class Assembler:
 			self.i['OUT'] = Inst('OUT', '01111', 'R')
 			#Add instructions here to make them
 			#part of the default set
-
+			self.i['ADD_I'] = Inst('ADD_I', '10000', 'R')
+			self.i['ADDE_I'] = Inst('ADDE_I', '10001', 'I')
+			self.i['ADDE_R'] = Inst('ADDE_R', '10010', 'D')
+			self.i['SUB_I'] = Inst('SUB_I', '10011', 'R')
+			self.i['SUBE_I'] = Inst('SUBE_I', '10100', 'I')
+			self.i['SUBE_R'] = Inst('SUBE_R', '10101', 'D')
+			self.i['LW'] = Inst('LW', '10110', 'D')
+			self.i['SW'] = Inst('SW', '10111', 'D')
 			#table lists what the length of the fields are for
 			#each Instruction type
 			#format is (#fields, len_1, len_2, ... len_n)
 			self.table = {}
 			self.table['R'] = (3, 5, 1, 10)
 			self.table['J'] = (2, 5, 11)
+
 			#if you add any new instruction types to the
 			#default set, make sure to add a matching table
 			#entry
+			self.table['D'] = (4, 5, 4, 4, 3)
+			self.table['I'] = (3, 5, 3, 8)
 
+			#Regs lists the numbers to put for each register
+			#registers are lead by a '$' character
+			self.regs = {}
+			self.regs['R0'] = 0
+			self.regs['R1'] = 1
+			self.regs['S0'] = 2
+			self.regs['S1'] = 3
+			self.regs['S2'] = 4
+			self.regs['T0'] = 5
+			self.regs['T1'] = 6
+			self.regs['T2'] = 7
+			self.regs['ZERO'] = 8
+			self.regs['RA'] = 9
+			self.regs['PC'] = 10
+			self.regs['A0'] = 11
+			self.regs['A1'] = 12
+			self.regs['A2'] = 13
+			self.regs['V0'] = 14
+			self.regs['ST'] = 15
 		else: #custom load instructions and types
 			self.i = i
 			self.table = table
+
+		#Memtags stores the links to memory in the asm
+		self.mem_tags = {}
 
 	def addInst(self, name, code, tag):
 		self.i[name] = Inst(name, code, tag)
@@ -124,14 +162,21 @@ class Assembler:
 		n.insert(0, len(nums))
 		self.table[tag] = tuple(n)
 
-	def bin2Hex(self, hexD, length):
+	#helper: convert hex number to binary of length
+	def hex2bin(self, hexD, length):
 		return bin(int(hexD, 16))[2:].zfill(length)
+
+	#parse line in file
 	def parseLine(self, line):
 		line = line.split("--")[0] #remove comments
 		if line.strip() == "": #If we had nothing but a comment on the line, return
 			return ""
 		ops = line.upper().strip().split(" ") #split out the elements
 		print(ops)
+
+		#Check if there is memory to store
+		if ops[0][0] == ':':
+			ops = ops[1:]
 		#set up variables to use outside of the try/except
 		t = None 
 		s = None
@@ -148,7 +193,11 @@ class Assembler:
 		for sec in range(1, t[0]):
 			if len(ops) > sec: #check if the field is filled out
 				if ops[sec][0] == 'X': #allow for hexidecimal assembly
-					s+=self.bin2Hex('0'+ops[sec], t[sec+1])
+					s+=self.hex2bin('0'+ops[sec], t[sec+1])
+				elif ops[sec][0] == '<': #check if the field is a memory address
+					s+="{0:0{1}b}".format(self.mem_tags[ops[sec].replace('<', '').replace('>', '')], t[sec+1])
+				elif ops[sec][0] == '$': #Check if the field is a register
+					s+="{0:0{1}b}".format(self.regs[ops[sec].replace('$', '')], t[sec+1])
 				else:
 					if len(ops[sec]) <= t[sec+1]:
 						s+=ops[sec].zfill(t[sec+1])
@@ -159,12 +208,30 @@ class Assembler:
 				s+=''.zfill(t[sec+1]) # fill in 0's for d.c. fields
 		return s + '\n'
 		
+	#Link tags to memory locations
+	def linkMem(self, infile):
+		with open(infile, 'r') as f:
+			i = 0
+			for line in f:
+				if line[0] == ':':
+					print(i)
+					self.mem_tags[line.split(':')[1].upper()] = i
+				if line[0] != '--': #skip comments
+					i+=1
+
+	#parse file to straight binary
 	def parseFile(self, infile, outfile = "a.out"):
+		self.linkMem(infile)
 		with open(infile, "r") as f:
 			with open(outfile, "w") as o:
-				o.write(self.parseLine(line.strip()))
+				for line in f:
+					o.write(self.parseLine(line.strip()))
 		print('{} written'.format(outfile))
+
+	#parse file to mif
 	def parseToMif(self, infile, outfile = 'a.mif'):
+		self.linkMem(infile)
+		print(self.mem_tags)
 		with open(infile, "r") as f:
 			s = ''
 			for line in f:
