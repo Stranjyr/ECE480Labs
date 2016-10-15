@@ -216,7 +216,7 @@ class Assembler:
 				if line[0] == ':':
 					print(i)
 					self.mem_tags[line.split(':')[1].upper()] = i
-				if line[0] != '--': #skip comments
+				if line[0:2] != '--': #skip comments
 					i+=1
 
 	#parse file to straight binary
