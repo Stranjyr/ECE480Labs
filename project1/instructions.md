@@ -2,6 +2,8 @@
 ##Base Instructions
 These instructions are default to all 480 Microcomputer Projects.
 They are all in R format.  
+
+
 | Name  | OP Code | Notes                  |
 |-------|---------|------------------------|
 | ADD   | x00     | Adds R to Addr         |
@@ -23,6 +25,8 @@ They are all in R format.
 
 ##Added Instructions
 As we add instructions, we will put them here
+
+
 | Name  | OP Code | Format |Notes                  |
 |-------|---------|--------|-----------------------|
 
