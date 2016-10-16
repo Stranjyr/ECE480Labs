@@ -172,7 +172,6 @@ class Assembler:
 		if line.strip() == "": #If we had nothing but a comment on the line, return
 			return ""
 		ops = line.upper().strip().split(" ") #split out the elements
-		print(ops)
 
 		#Check if there is memory to store
 		if ops[0][0] == ':':
@@ -214,7 +213,6 @@ class Assembler:
 			i = 0
 			for line in f:
 				if line[0] == ':':
-					print(i)
 					self.mem_tags[line.split(':')[1].upper()] = i
 				if line[0:2] != '--': #skip comments
 					i+=1
@@ -231,13 +229,11 @@ class Assembler:
 	#parse file to mif
 	def parseToMif(self, infile, outfile = 'a.mif'):
 		self.linkMem(infile)
-		print(self.mem_tags)
 		with open(infile, "r") as f:
 			s = ''
 			for line in f:
 				s+=self.parseLine(line.strip())
 			s = s.strip().split('\n') #read into memory: we need to know how many lines there are
-			print(s)
 			with open(outfile, "w") as o:
 				o.write('DEPTH = {};\n'.format(len(s)))
 				o.write('WIDTH = 16;\n')

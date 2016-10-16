@@ -72,7 +72,6 @@ begin
 	begin
 		if rising_edge(clock) then
 		--See Instructions.md for a list of instructions and formats
-			pc <= mem
 			case(pc(15 downto 11) is
 				--ADD address and Register
 				when x"00" => 
