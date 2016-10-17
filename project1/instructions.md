@@ -37,6 +37,8 @@ As we add instructions, we will put them here
 | SUBe_r | 10101   | D      | SDL <= SDR-SDG        |
 | LW     | 10110   | D      | SDL <= SDR[SDG]       |
 | SW     | 10111   | D      | SDR[SDG] <= SDL       |
+| JAL    | 11000   | R      | JMP to addr, store RA |
+| JNE_r  | 11001   | D      | JMP to SDL if SDR!=SDG|
 
   
 ##Instruction Formats
