@@ -218,8 +218,18 @@ begin
 				when x"12" =>
 					register_array(to_integer(pc(10 downto 7))) <= register_array(to_integer(pc(6 downto 3))) + register_array(to_integer(pc(2 downto 0)));
 					pc_advance <= '1';
-				--TODO: SUB_i, SUBe_i, SUBe_r
-
+				--SUB_i
+				when x"13" =>
+					register_array(to_integer(pc(10))) <=register_array(to_integer(pc(10)))-pc(9 downto 0);
+					pc_advance <= '1';
+				--Sube_i
+				when x"14" =>
+					register_array(to_integer(pc(10))) <= register_array(to_integer(pc(10 downto 8))- pc(7 downto 0));
+					pc_advance =>'1';
+				--SUBe_r
+				when x"15" =>
+					register_array(to_integer(pc(10 downto 7) <= register_array(to_integer(pc(6 downto 3)))-register_array(to_integer(pc(2 downto 0)));
+					pc_advance =>'1';
 				--LW
 				when x"16" =>
 					case(instr_step) is
@@ -232,7 +242,7 @@ begin
 							pc_advance = '1';
 					end case;
 				--TODO: SW (see STR)
-
+				--when x"17" =>
 				--JAL
 				when x"18" =>
 					register_array(9) <= register_array(10);
