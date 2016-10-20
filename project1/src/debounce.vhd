@@ -36,7 +36,7 @@
 --   Design Software:  Quartus Prime 64-bit Version 16.0
 --
 --   Modified by Luke Haynes & William Hampton to [Any changes we make]
---   Version 1.0 10/20/2016 Luke Haynes & William Hampton 
+--   Version 1.2 10/20/2016 Luke Haynes & William Hampton 
 --------------------------------------------------------------------------------
 
 library 	ieee;

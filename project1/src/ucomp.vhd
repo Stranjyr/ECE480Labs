@@ -4,6 +4,7 @@ use ieee.numeric_std.all;
 
 library work;
 use work.clkmux;
+use work.debounce;
 entity ucomp is
   port (
 	clk50	: in std_logic;
@@ -68,6 +69,16 @@ architecture arch of ucomp is
 			sel		: in 	std_logic := '0';
 			clkout	: out 	std_logic);
 	end component;
+	
+	component debounce
+	generic(
+	    counter_size  :  integer := 20); 			-- counter size (20 bits gives approx. 20ms debounce with 50mhz clock)
+	port(
+	    clk     		: in  std_logic := '0'; -- input clock (50 MHz)
+	    button  		: in  std_logic := '0'; -- input signal to be debounced
+	    debounced_button : out std_logic);       -- debounced output signal
+	end component;
+
 
 
 begin
@@ -310,5 +321,20 @@ begin
 			clkout	=> clock
 		);
 		
+		debounce_key0 : debounce
+		port map
+		(
+			clk => clk50,
+			button => key(0),
+			debounced_button => key_debounce(0)
+		);
+
+		debounce_key1 : debounce
+		port map
+		(
+			clk => clk50,
+			button => key(1),
+			debounced_button => key_debounce(1)
+		);
 	end process;
 end architecture ; -- arch
