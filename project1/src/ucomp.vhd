@@ -5,6 +5,7 @@ use ieee.numeric_std.all;
 library work;
 use work.clkmux;
 use work.debounce;
+use work.clk_div;
 entity ucomp is
   port (
 	clk50	: in std_logic;
@@ -94,6 +95,17 @@ architecture arch of ucomp is
 	);
 	end component;
 
+	component clk_div
+	port(	clock_50mhz			: in	std_logic;
+     	clock_12p5mhz		: out	std_logic;
+		clock_1mhz		: out	std_logic;
+		clock_100khz		: out	std_logic;
+		clock_10khz		: out	std_logic;
+		clock_1khz		: out	std_logic;
+		clock_100hz		: out	std_logic;
+		clock_10hz		: out	std_logic;
+		clock_1hz		: out	std_logic);
+	end component;
 
 
 begin
@@ -365,6 +377,19 @@ begin
 			q_a 	  => mem_data_rd,
 			q_b 	  => mem_data_pc_rd
 		);
-		
+
+		clock_div : clk_div
+		port map (
+
+		clock_50mhz		=> clk50,	
+     	clock_12p5mhz	=> clk125,
+		clock_1mhz		=> open,
+		clock_100khz	=> open,
+		clock_10khz		=> open,
+		clock_1khz		=> open,
+		clock_100hz		=> open,
+		clock_10hz		=> open,
+		clock_1hz		=> open
+		);
 	end process;
 end architecture ; -- arch
