@@ -2,6 +2,8 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
+library work;
+use work.clkmux;
 entity ucomp is
   port (
 	clk50	: in std_logic;
@@ -16,6 +18,9 @@ architecture arch of ucomp is
 	signal clock 	: std_logic; --clock selected by multipler
 	signal clk125 	: std_logic;
 	signal clk_step	: std_logic;
+
+	--button debounce signals
+	signal key_debounce : std_logic_vector(3 downto 0);
 
 	--Registers
 	type logic_array is array(0 to 15) of unsigned(15 downto 0);
@@ -55,6 +60,14 @@ architecture arch of ucomp is
 
 	signal mem_en_wr 	: std_logic;
 	signal mem_clk		: std_logic; --runs much faster than the program clock
+
+	--Components
+	component clkmux
+	port ( 	clk0	: in 	std_logic := '0';
+			clk1	: in 	std_logic := '0';
+			sel		: in 	std_logic := '0';
+			clkout	: out 	std_logic);
+	end component;
 
 
 begin
@@ -288,6 +301,14 @@ begin
 			end if;
 		end if;
 
+		clock_choose : clkmux
+		port map
+		(
+			clk0	=> key_debounce(0),
+			clk1	=> clk125,
+			sel		=> sw(9),
+			clkout	=> clock
+		);
 		
 	end process;
 end architecture ; -- arch
