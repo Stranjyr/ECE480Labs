@@ -15,30 +15,36 @@ port(	clock_50mhz			: in	std_logic;
 end clk_div;
 
 architecture behavior of clk_div is
-	signal	count_12p5mhz					: integer range 0 to 511 := 0;
+	signal	count_12p5mhz					: integer range 0 to 3 := 0;
 	signal	count_1mhz					: integer range 0 to 63 := 0;
 	signal	count_100khz, count_10khz, count_1khz 		: integer range 0 to 7  := 0;
 	signal	count_100hz, count_10hz, count_1hz 		: integer range 0 to 7  := 0;
 	signal	clock_1mhz_int, clock_100khz_int		: std_logic := '0';
 	signal	clock_10khz_int, clock_1khz_int			: std_logic := '0'; 
 	signal	clock_100hz_int, clock_10hz_int			: std_logic := '0';
-	signal	clock_1hz_int, clock_12p5mhz_int		: std_logic := '0';
+	signal	clock_1hz_int					: std_logic := '0';
 begin
-	process 
+	
+--divide by 4	
+	process (clk_50mhz)
 	begin
 		if rising_edge(clock_50mhz) then
-			if count_12p5mhz < 499 then
+			if count_12p5mhz < 3 then
 				count_12p5mhz <= count_12p5mhz + 1;
 			else
 				count_12p5mhz <= 0;
 			end if;
-			if count_12p5mhz < 125 then
-				clock_12p5mhz_int <= '0';
+			if count_12p5mhz < 2 then
+				clock_12p5mhz <= '0';
 			else
-				clock_12p5mhz_int <= '1';
+				clock_12p5mhz <= '1';
 			end if;	
+		end if;
+	end process
 		
--- divide by 50
+	-- divide 50mhz clk by 50	
+	process
+	begin
 		wait until clock_50mhz'event and clock_50mhz = '1';
 			if count_1mhz < 49 then
 				count_1mhz <= count_1mhz + 1;
@@ -53,7 +59,6 @@ begin
 
 -- ripple clocks are used in this code to save prescalar hardware
 -- sync all clock prescalar outputs back to master clock signal
-			clock_12p5mhz	<=clock_12p5mhz_int;
 			clock_1mhz 	<= clock_1mhz_int;
 			clock_100khz 	<= clock_100khz_int;
 			clock_10khz 	<= clock_10khz_int;
