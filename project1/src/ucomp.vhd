@@ -218,8 +218,18 @@ begin
 				when x"12" =>
 					register_array(to_integer(pc(10 downto 7))) <= register_array(to_integer(pc(6 downto 3))) + register_array(to_integer(pc(2 downto 0)));
 					pc_advance <= '1';
-				--TODO: SUB_i, SUBe_i, SUBe_r
-
+			     	--SUB_i
+			     	when x"13" =>
+			     		register_array(to_integer(pc(10))) <= register_array(to_integer(pc(10))) - pc(9 downto 0);
+			     		pc_advance <= 1;
+				--SUBe_i
+			     	when x"14" =>
+			     		register_array(to_integer(pc(10 downto 8))) <= register_array(to_integer(pc(10 downto 8))) - pc(7 downto 0);
+			     		pc_advance <= 1;
+			     	--SUBe_r
+			     	when x"15" =>
+			     		register_array(to_integer(pc(10 downto 7)<=register_array(to_integer(pc(6 downto 3))) - register_array(to_integer(pc(2 downto 0)));
+					pc_advance <= 1;
 				--LW
 				when x"16" =>
 					case(instr_step) is
@@ -231,15 +241,44 @@ begin
 							instr_step <= 0;
 							pc_advance = '1';
 					end case;
-				--TODO: SW (see STR)
+				--SW
+				when x"17" =>
+					case(instr_step) is
+						when 0 =>
+							mem_data_wr <= register_array(to_integer(pc(10 downto 7)));
+							mem_addr_wr <= register_array(to_integer(pc(6 downto 3)))(9 downto 0) + register_array(to_integer(pc(2 downto 0)))(9 downto 0);
+							mem_en_wr <= '1';
+							instr_step <= 1;
+						when 1 =>
+							mem_en_wr <= '0';
+							instr_step <= 0;
+							pc_advance <= '1';
+					end case;
 
 				--JAL
 				when x"18" =>
 					register_array(9) <= register_array(10);
 					register_array(10) <= (9 downto 0 => pc(9 downto 0), others => '0');
 					--dont advance pc
-					
-				--TODO: BNEe_r, BEQe_r (see adde_r and JZ)
+								  
+				--BNEe_r
+				when x"19" =>
+					--if SDR is equal to SDG, advance pc. Else, branch to SDL
+					if register_array(to_integer(pc(6 downto 3))) == register_array(to_integer(pc(2 downto 0))) then
+						pc_advance <= '1';
+					else
+						register_array(10) <= (9 downto 0 => register_array(to_integer(pc(10 downto 7))), others => '0');
+						--Don't advance pc
+					end if;
+				--BEQe_r
+				when x"20" =>
+					--if SDR is equal to SDG, branch to SDL. Else, advance pc.
+					if register_array(to_integer(pc(6 downto 3))) == register_array(to_integer(pc(2 downto 0))) then
+						register_array(10) <= (9 downto 0 => register_array(to_integer(pc(10 downto 7))), others => '0');
+						--Don't advance pc
+					else
+						pc_advance <= '1';
+					end if;	
 
 			end case;
 			--Advance the pc if needed
