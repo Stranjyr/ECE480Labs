@@ -51,8 +51,8 @@ architecture arch of ucomp is
 	signal pc_advance	: std_logic; --end of instruction flag
 
 	--Memory Signals
-	signal mem_addr_rd 	: unsigned(9 downto 0);
-	signal mem_addr_wr 	: unsigned(9 downto 0);
+	signal mem_addr 	: unsigned(9 downto 0);
+	signal mem_addr 	: unsigned(9 downto 0);
 	signal mem_addr_pc_rd : unsigned(9 downto 0);
 
 	signal mem_data_rd 	: unsigned(15 downto 0);
@@ -77,6 +77,21 @@ architecture arch of ucomp is
 	    clk     		: in  std_logic := '0'; -- input clock (50 MHz)
 	    button  		: in  std_logic := '0'; -- input signal to be debounced
 	    debounced_button : out std_logic);       -- debounced output signal
+	end component;
+
+	component main_memory
+	port
+	(
+		address_a : in std_logic_vector(9 downto 0);
+		address_b : in std_logic_vector(9 downto 0);
+		clock 		: in std_logic;
+		data_a 		: in std_logic_vector(15 downto 0);
+		data_b 		: in std_logic_vector(15 downto 0);
+		wren_a 		: in std_logic;
+		wren_b 		: in std_logic;
+		q_a 		: out std_logic_vector(15 downto 0);
+		q_b 		: out std_logic_vector(15 downto 0)
+	);
 	end component;
 
 
@@ -112,7 +127,7 @@ begin
 				when x"00" => 
 					case(instr_step) is
 						when 0 =>
-							mem_addr_rd <= pc(9 downto 0);
+							mem_addr <= pc(9 downto 0);
 							instr_step <= 1;
 						when 1 =>
 							register_array(to_integer(pc(10))) <= register_array(to_integer(pc(10))) + mem_data_rd;
@@ -124,7 +139,7 @@ begin
 					case(instr_step) is
 						when 0 =>
 							mem_data_wr <= register_array(to_integer(pc(10)));
-							mem_addr_wr <= pc(9 downto 0);
+							mem_addr <= pc(9 downto 0);
 							mem_en_wr <= '1';
 							instr_step <= 1;
 						when 1 =>
@@ -136,7 +151,7 @@ begin
 				when x"02" =>
 					case(instr_step) is
 						when 0 =>
-							mem_addr_rd <= pc(9 downto 0);
+							mem_addr <= pc(9 downto 0);
 							instr_step <= 1;
 						when 1 =>
 							register_array(to_integer(pc(10))) <= mem_data_rd;
@@ -160,7 +175,7 @@ begin
 				when x"05" =>
 					case(instr_step) is
 						when 0 =>
-							mem_addr_rd <= pc(9 downto 0);
+							mem_addr <= pc(9 downto 0);
 							instr_step <= 1;
 						when 1 =>
 							register_array(to_integer(pc(10))) <= register_array(to_integer(pc(10))) - mem_data_rd;
@@ -175,7 +190,7 @@ begin
 				when x"07" =>
 					case(instr_step) is
 						when 0 =>
-							mem_addr_rd <= pc(9 downto 0);
+							mem_addr <= pc(9 downto 0);
 							instr_step <= 1;
 						when 1 =>
 							register_array(to_integer(pc(10))) <= register_array(to_integer(pc(10))) or mem_data_rd;
@@ -186,7 +201,7 @@ begin
 				when x"08" =>
 					case(instr_step) is
 						when 0 =>
-							mem_addr_rd <= pc(9 downto 0);
+							mem_addr <= pc(9 downto 0);
 							instr_step <= 1;
 						when 1 =>
 							register_array(to_integer(pc(10))) <= register_array(to_integer(pc(10))) and mem_data_rd;
@@ -258,7 +273,7 @@ begin
 				when x"16" =>
 					case(instr_step) is
 						when 0 =>
-							mem_addr_rd <= register_array(to_integer(pc(6 downto 3)))(9 downto 0) + register_array(to_integer(pc(2 downto 0)))(9 downto 0);
+							mem_addr <= register_array(to_integer(pc(6 downto 3)))(9 downto 0) + register_array(to_integer(pc(2 downto 0)))(9 downto 0);
 							instr_step <= 1;
 						when 1 =>
 							register_array(to_integer(pc(10 downto 7))) <= mem_data_rd;
@@ -270,7 +285,7 @@ begin
 					case(instr_step) is
 						when 0 =>
 							mem_data_wr <= register_array(to_integer(pc(10 downto 7)));
-							mem_addr_wr <= register_array(to_integer(pc(6 downto 3)))(9 downto 0) + register_array(to_integer(pc(2 downto 0)))(9 downto 0);
+							mem_addr <= register_array(to_integer(pc(6 downto 3)))(9 downto 0) + register_array(to_integer(pc(2 downto 0)))(9 downto 0);
 							mem_en_wr <= '1';
 							instr_step <= 1;
 						when 1 =>
@@ -336,5 +351,20 @@ begin
 			button => key(1),
 			debounced_button => key_debounce(1)
 		);
+
+		main_mem_ram : main_memory
+		port map
+		(
+			address_a => mem_addr,
+			address_b => mem_addr_pc_rd,
+			clock 	  => clk50,
+			data_a 	  => mem_data_wr,
+			data_b 	  => (others => '0'),
+			wren_a 	  => mem_en_wr,
+			wren_b 	  => '0',
+			q_a 	  => mem_data_rd,
+			q_b 	  => mem_data_pc_rd
+		);
+		
 	end process;
 end architecture ; -- arch
