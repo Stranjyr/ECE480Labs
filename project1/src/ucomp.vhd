@@ -53,15 +53,17 @@ architecture arch of ucomp is
 
 	--Memory Signals
 	signal mem_addr 	: unsigned(9 downto 0);
-	signal mem_addr 	: unsigned(9 downto 0);
 	signal mem_addr_pc_rd : unsigned(9 downto 0);
 
 	signal mem_data_rd 	: unsigned(15 downto 0);
+	signal mem_data_rd_std : std_logic_vector(15 downto 0);
 	signal mem_data_wr 	: unsigned(15 downto 0);
 	signal mem_data_pc_rd : unsigned(15 downto 0);
+	signal mem_data_pc_rd_std : std_logic_vector(15 downto 0);
 
 	signal mem_en_wr 	: std_logic;
 	signal mem_clk		: std_logic; --runs much faster than the program clock
+	constant addr_mask : unsigned(15 downto 0) := "0000001111111111";
 
 	--Components
 	component clkmux
@@ -113,8 +115,10 @@ begin
 	mem_addr_pc_rd <= register_array(10)(9 downto 0);
 	pc <= mem_data_pc_rd;
 
-	--Keep the zero register locked to zero
-	register_array(8) <= (others => '0');
+	
+	--make sure our std read map to the unsigned
+	mem_data_rd <= unsigned(mem_data_rd_std);
+	mem_data_pc_rd <= unsigned(mem_data_pc_rd_std);
 	
 	--Instruction Formats
 	--R Format
@@ -129,208 +133,229 @@ begin
 
 	--Main loop for processing instructions.
 	mainLoop : process(clock)
-		variable instr_step : integer range 0 to 15; --tracks the part of the 
+		variable instr_step : integer range 0 to 7 := 0; --tracks the part of the 
 													 --instruction for multi-clock instructions
 	begin
-		if rising_edge(clock) then
+	
+		if key_debounce(1) = '0'then
+			register_array(10) <= x"0000";
+			
+		elsif rising_edge(clock) then
 		--See Instructions.md for a list of instructions and formats
-			case(pc(15 downto 11) is
+			case(pc(15 downto 11)) is
 				--ADD address and Register
-				when x"00" => 
+				when "00000" => 
 					case(instr_step) is
 						when 0 =>
 							mem_addr <= pc(9 downto 0);
-							instr_step <= 1;
+							instr_step := 1;
 						when 1 =>
-							register_array(to_integer(pc(10))) <= register_array(to_integer(pc(10))) + mem_data_rd;
-							instr_step <= 0;
+							register_array(to_integer(pc(10 downto 10))) <= register_array(to_integer(pc(10 downto 10))) + mem_data_rd;
+							instr_step := 0;
 							pc_advance <= '1';
+						when others =>
+							null;
 					end case;
 				--STR (Store R Register)
-				when x"01" =>
+				when "00001" =>
 					case(instr_step) is
 						when 0 =>
-							mem_data_wr <= register_array(to_integer(pc(10)));
+							mem_data_wr <= register_array(to_integer(pc(10 downto 10)));
 							mem_addr <= pc(9 downto 0);
 							mem_en_wr <= '1';
-							instr_step <= 1;
+							instr_step := 1;
 						when 1 =>
 							mem_en_wr <= '0';
-							instr_step <= 0;
+							instr_step := 0;
 							pc_advance <= '1';
+						when others =>
+							null;
 					end case;
 				--LDR (Load R Register)
-				when x"02" =>
+				when "00010" =>
 					case(instr_step) is
 						when 0 =>
 							mem_addr <= pc(9 downto 0);
-							instr_step <= 1;
+							instr_step := 1;
 						when 1 =>
-							register_array(to_integer(pc(10))) <= mem_data_rd;
-							instr_step <= 0;
+							register_array(to_integer(pc(10 downto 10))) <= mem_data_rd;
+							instr_step := 0;
 							pc_advance <= '1';
+						when others =>
+							null;
 					end case;
 				--JMP
-				when x"03" =>
-					register_array(10) <= (9 downto 0 => pc(9 downto 0), others => '0');
+				when "00011" =>
+					register_array(10) <= pc and addr_mask;
 					--don't advance the pc: we just set it!
 				--JN (Jump if Negitive)
-				when x"04" =>
+				when "00100" =>
 					--if register is negitive, jump. Else, advance pc
-					if register_array(to_integer(pc(10))) < 0 then
-						register_array(10) <= (9 downto 0 => pc(9 downto 0), others => '0');
+					if signed(register_array(to_integer(pc(10 downto 10)))) < 0 then
+						register_array(10) <= pc and addr_mask;
 						--don't advance the pc: we just set it!
 					else
 						pc_advance <= '1';
 					end if;
 				--SUB
-				when x"05" =>
+				when "00101" =>
 					case(instr_step) is
 						when 0 =>
 							mem_addr <= pc(9 downto 0);
-							instr_step <= 1;
+							instr_step := 1;
 						when 1 =>
-							register_array(to_integer(pc(10))) <= register_array(to_integer(pc(10))) - mem_data_rd;
-							instr_step <= 0;
+							register_array(to_integer(pc(10 downto 10))) <= register_array(to_integer(pc(10 downto 10))) - mem_data_rd;
+							instr_step := 0;
 							pc_advance <= '1';
+						when others =>
+							null;
 					end case;
 				--INC
-				when x"06" =>
-					register_array(to_integer(pc(10))) <= register_array(to_integer(pc(10))) + 1;
+				when "00110" =>
+					register_array(to_integer(pc(10 downto 10))) <= register_array(to_integer(pc(10 downto 10))) + 1;
 					pc_advance <= '1';
 				--OR
-				when x"07" =>
+				when "00111" =>
 					case(instr_step) is
 						when 0 =>
 							mem_addr <= pc(9 downto 0);
-							instr_step <= 1;
+							instr_step := 1;
 						when 1 =>
-							register_array(to_integer(pc(10))) <= register_array(to_integer(pc(10))) or mem_data_rd;
-							instr_step <= 0;
+							register_array(to_integer(pc(10 downto 10))) <= register_array(to_integer(pc(10 downto 10))) or mem_data_rd;
+							instr_step := 0;
 							pc_advance <= '1';
+						when others =>
+							null;
 					end case;
 				--AND
-				when x"08" =>
+				when "01000" =>
 					case(instr_step) is
 						when 0 =>
 							mem_addr <= pc(9 downto 0);
-							instr_step <= 1;
+							instr_step := 1;
 						when 1 =>
-							register_array(to_integer(pc(10))) <= register_array(to_integer(pc(10))) and mem_data_rd;
-							instr_step <= 0;
+							register_array(to_integer(pc(10 downto 10))) <= register_array(to_integer(pc(10 downto 10))) and mem_data_rd;
+							instr_step := 0;
 							pc_advance <= '1';
+						when others =>
+							null;
 					end case;
 				--NOT
-				when x"09" =>
-					register_array(to_integer(pc(10))) <= not register_array(to_integer(pc(10)));
+				when "01001" =>
+					register_array(to_integer(pc(10 downto 10))) <= not register_array(to_integer(pc(10 downto 10)));
 				--JP (Jump if Positive)
-				when x"0A" =>
+				when "01010" =>
 					--if register is positive, jump. Else, advance pc
-					if register_array(to_integer(pc(10))) < 0 then
-						register_array(10) <= (9 downto 0 => pc(9 downto 0), others => '0');
+					if signed(register_array(to_integer(pc(10 downto 10)))) > 0 then
+						register_array(10) <= pc and addr_mask;
 						--don't advance the pc: we just set it!
 					else
 						pc_advance <= '1';
 					end if;
 				--JZ (Jump if Zero)
-				when x"0B" =>
+				when "01011" =>
 					--if register is 0, jump. Else, advance pc
-					if register_array(to_integer(pc(10))) < 0 then
-						register_array(10) <= (9 downto 0 => pc(9 downto 0), others => '0');
+					if register_array(to_integer(pc(10 downto 10))) = 0 then
+						register_array(10) <= pc and addr_mask;
 						--don't advance the pc: we just set it!
 					else
 						pc_advance <= '1';
 					end if;
 				--SHL
-				when x"0C" =>
-					register_array(to_integer(pc(10))) <= register_array(to_integer(pc(10))) sll 1;
+				when "01100" =>
+					register_array(to_integer(pc(10 downto 10))) <= register_array(to_integer(pc(10 downto 10))) sll 1;
 					pc_advance <= '1';
 				--SHR
-				when x"0D" =>
-					register_array(to_integer(pc(10))) <= register_array(to_integer(pc(10))) srl 1;
+				when "01101" =>
+					register_array(to_integer(pc(10 downto 10))) <= register_array(to_integer(pc(10 downto 10))) srl 1;
 					pc_advance <= '1';
 				--IN (Fill From Switches
-				when x"0E" =>
-					register_array(to_integer(pc(10)))(7 downto 0) <= sw(7 downto 0);
+				when "01110" =>
+					register_array(to_integer(pc(10 downto 10)))(7 downto 0) <= unsigned(sw(7 downto 0));
 					pc_advance <= '1';
 				--OUT (Light LEDs)
-				when x"0E" =>
-					leds(7 downto 0) <= register_array(to_integer(pc(10)))(7 downto 0);
+				when "01111" =>
+					leds(7 downto 0) <= std_logic_vector(register_array(to_integer(pc(10 downto 10)))(7 downto 0));
 					pc_advance <= '1';
 				--Add_i (Add val address to R)
-				when x"10" =>
-					register_array(to_integer(pc(10))) <= register_array(to_integer(pc(10))) + pc(9 downto 0);
+				when "10000" =>
+					register_array(to_integer(pc(10 downto 10))) <= register_array(to_integer(pc(10 downto 10))) + pc(9 downto 0);
 					pc_advance <= '1';
 				--ADDe_i
-				when x"11" =>
+				when "10001" =>
 					register_array(to_integer(pc(10 downto 8))) <= register_array(to_integer(pc(10 downto 8))) + pc(7 downto 0);
 					pc_advance <= '1';
 				--ADDe_r
-				when x"12" =>
+				when "10010" =>
 					register_array(to_integer(pc(10 downto 7))) <= register_array(to_integer(pc(6 downto 3))) + register_array(to_integer(pc(2 downto 0)));
 					pc_advance <= '1';
 			     	--SUB_i
-			     	when x"13" =>
-			     		register_array(to_integer(pc(10))) <= register_array(to_integer(pc(10))) - pc(9 downto 0);
-			     		pc_advance <= 1;
+			   when "10011" =>
+			     	register_array(to_integer(pc(10 downto 10))) <= register_array(to_integer(pc(10 downto 10))) - pc(9 downto 0);
+			     	pc_advance <= '1';
 				--SUBe_i
-			     	when x"14" =>
-			     		register_array(to_integer(pc(10 downto 8))) <= register_array(to_integer(pc(10 downto 8))) - pc(7 downto 0);
-			     		pc_advance <= 1;
+			   when "10100" =>
+			     	register_array(to_integer(pc(10 downto 8))) <= register_array(to_integer(pc(10 downto 8))) - pc(7 downto 0);
+			     	pc_advance <= '1';
 			     	--SUBe_r
-			     	when x"15" =>
-			     		register_array(to_integer(pc(10 downto 7)<=register_array(to_integer(pc(6 downto 3))) - register_array(to_integer(pc(2 downto 0)));
-					pc_advance <= 1;
+			   when "10101" =>
+			     	register_array(to_integer(pc(10 downto 7))) <=register_array(to_integer(pc(6 downto 3))) - register_array(to_integer(pc(2 downto 0)));
+					pc_advance <= '1';
 				--LW
-				when x"16" =>
+				when "10110" =>
 					case(instr_step) is
 						when 0 =>
 							mem_addr <= register_array(to_integer(pc(6 downto 3)))(9 downto 0) + register_array(to_integer(pc(2 downto 0)))(9 downto 0);
-							instr_step <= 1;
+							instr_step := 1;
 						when 1 =>
 							register_array(to_integer(pc(10 downto 7))) <= mem_data_rd;
-							instr_step <= 0;
-							pc_advance = '1';
+							instr_step := 0;
+							pc_advance <= '1';
+						when others =>
+							null;
 					end case;
 				--SW
-				when x"17" =>
+				when "10111" =>
 					case(instr_step) is
 						when 0 =>
 							mem_data_wr <= register_array(to_integer(pc(10 downto 7)));
 							mem_addr <= register_array(to_integer(pc(6 downto 3)))(9 downto 0) + register_array(to_integer(pc(2 downto 0)))(9 downto 0);
 							mem_en_wr <= '1';
-							instr_step <= 1;
+							instr_step := 1;
 						when 1 =>
 							mem_en_wr <= '0';
-							instr_step <= 0;
+							instr_step := 0;
 							pc_advance <= '1';
+						when others =>
+							null;
 					end case;
 
 				--JAL
-				when x"18" =>
+				when "11000" =>
 					register_array(9) <= register_array(10);
-					register_array(10) <= (9 downto 0 => pc(9 downto 0), others => '0');
+					register_array(10) <= pc;
 					--dont advance pc
 								  
 				--BNEe_r
-				when x"19" =>
+				when "11001" =>
 					--if SDR is equal to SDG, advance pc. Else, branch to SDL
-					if register_array(to_integer(pc(6 downto 3))) == register_array(to_integer(pc(2 downto 0))) then
+					if register_array(to_integer(pc(6 downto 3))) = register_array(to_integer(pc(2 downto 0))) then
 						pc_advance <= '1';
 					else
-						register_array(10) <= (9 downto 0 => register_array(to_integer(pc(10 downto 7))), others => '0');
+						register_array(10) <= register_array(to_integer(pc(10 downto 7)));
 						--Don't advance pc
 					end if;
 				--BEQe_r
-				when x"20" =>
+				when "11010" =>
 					--if SDR is equal to SDG, branch to SDL. Else, advance pc.
-					if register_array(to_integer(pc(6 downto 3))) == register_array(to_integer(pc(2 downto 0))) then
-						register_array(10) <= (9 downto 0 => register_array(to_integer(pc(10 downto 7))), others => '0');
+					if register_array(to_integer(pc(6 downto 3))) = register_array(to_integer(pc(2 downto 0))) then
+						register_array(10) <= register_array(to_integer(pc(10 downto 7)));
 						--Don't advance pc
 					else
 						pc_advance <= '1';
 					end if;	
-
+				when others =>
+					null;
 			end case;
 			--Advance the pc if needed
 			if pc_advance = '1' then
@@ -338,58 +363,59 @@ begin
 				pc_advance <= '0';
 			end if;
 		end if;
-
-		clock_choose : clkmux
-		port map
-		(
-			clk0	=> key_debounce(0),
-			clk1	=> clk125,
-			sel		=> sw(9),
-			clkout	=> clock
-		);
-		
-		debounce_key0 : debounce
-		port map
-		(
-			clk => clk50,
-			button => key(0),
-			debounced_button => key_debounce(0)
-		);
-
-		debounce_key1 : debounce
-		port map
-		(
-			clk => clk50,
-			button => key(1),
-			debounced_button => key_debounce(1)
-		);
-
-		main_mem_ram : main_memory
-		port map
-		(
-			address_a => mem_addr,
-			address_b => mem_addr_pc_rd,
-			clock 	  => clk50,
-			data_a 	  => mem_data_wr,
-			data_b 	  => (others => '0'),
-			wren_a 	  => mem_en_wr,
-			wren_b 	  => '0',
-			q_a 	  => mem_data_rd,
-			q_b 	  => mem_data_pc_rd
-		);
-
-		clock_div : clk_div
-		port map (
-
-		clock_50mhz		=> clk50,	
-     	clock_12p5mhz	=> clk125,
-		clock_1mhz		=> open,
-		clock_100khz	=> open,
-		clock_10khz		=> open,
-		clock_1khz		=> open,
-		clock_100hz		=> open,
-		clock_10hz		=> open,
-		clock_1hz		=> open
-		);
 	end process;
+	
+	clock_choose : clkmux
+	port map
+	(
+		clk0	=> key_debounce(0),
+		clk1	=> clk125,
+		sel		=> sw(9),
+		clkout	=> clock
+	);
+	
+	debounce_key0 : debounce
+	port map
+	(
+		clk => clk50,
+		button => keys(0),
+		debounced_button => key_debounce(0)
+	);
+
+	debounce_key1 : debounce
+	port map
+	(
+		clk => clk50,
+		button => keys(1),
+		debounced_button => key_debounce(1)
+	);
+
+	main_mem_ram : main_memory
+	port map
+	(
+		address_a => std_logic_vector(mem_addr),
+		address_b => std_logic_vector(mem_addr_pc_rd),
+		clock 	  => clk50,
+		data_a 	  => std_logic_vector(mem_data_wr),
+		data_b 	  => (others => '0'),
+		wren_a 	  => mem_en_wr,
+		wren_b 	  => '0',
+		q_a 	  => mem_data_rd_std,
+		q_b 	  => mem_data_pc_rd_std
+	);
+
+	clock_div : clk_div
+	port map (
+
+	clock_50mhz		=> clk50,	
+	clock_12p5mhz	=> clk125,
+	clock_1mhz		=> open,
+	clock_100khz	=> open,
+	clock_10khz		=> open,
+	clock_1khz		=> open,
+	clock_100hz		=> open,
+	clock_10hz		=> open,
+	clock_1hz		=> open
+	);
+	
 end architecture ; -- arch

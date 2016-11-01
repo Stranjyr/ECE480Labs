@@ -4,7 +4,7 @@ use  ieee.numeric_std.all;
 
 entity clk_div is
 port(	clock_50mhz			: in	std_logic;
-     	clock_12p5mhz		: out	std_logic;
+     		clock_12p5mhz		: out	std_logic;
 		clock_1mhz		: out	std_logic;
 		clock_100khz		: out	std_logic;
 		clock_10khz		: out	std_logic;
@@ -26,7 +26,7 @@ architecture behavior of clk_div is
 begin
 	
 --divide by 4	
-	process (clk_50mhz)
+	process (clock_50mhz)
 	begin
 		if rising_edge(clock_50mhz) then
 			if count_12p5mhz < 3 then
@@ -40,7 +40,7 @@ begin
 				clock_12p5mhz <= '1';
 			end if;	
 		end if;
-	end process
+	end process;
 		
 	-- divide 50mhz clk by 50	
 	process
