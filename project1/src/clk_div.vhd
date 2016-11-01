@@ -4,7 +4,7 @@ use  ieee.numeric_std.all;
 
 entity clk_div is
 port(	clock_50mhz			: in	std_logic;
-     		clock_12p5mhz		: out	std_logic;
+     	clock_12p5mhz		: out	std_logic;
 		clock_1mhz		: out	std_logic;
 		clock_100khz		: out	std_logic;
 		clock_10khz		: out	std_logic;

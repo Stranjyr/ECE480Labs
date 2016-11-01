@@ -1,6 +1,6 @@
 void main()
 {
-	int* list; //R0  contains data already
+	int* list; //S0  contains data
 	int temp, count, iter; //T0, T1, T2
 	for(;count<99;count++)
 	{

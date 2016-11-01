@@ -12,7 +12,7 @@ This program will assemble assembly language text files
 into the 480 project 1 machine code. Run it with 
 'python assmebler.py' and enter your file when prompted.
 By default, assembled machine code will be saved as a.out.
-
+To change this behavior, edit 
 ---------------------------------------------------------
 
 Changing the Language:
@@ -48,18 +48,25 @@ Integer fields can be filled in with binary or hexidecimal. Hex
 entries must begin with the symbol 'x'. If a field is left blank
 or not enough digits are entered into a field, the blank bits will
 be zero filled. If a field is overfilled, the assembler will 
-throw an error. Every line must have an instruction on it.
-Comments my be added to the end of a line by leading them with
-the symbol '--'. For an example file, see Assembly Language Example.
+throw an error.
+Register fields can be refrenced by number or by $Register_Name.
+Comments my be added to the end of a line by 
+leading them with the symbol '--'. 
+Lines my be labled by adding :lable_name: before the code on a line.
+Labels my be refrenced with <lable_name> in place of a memory value.
+For an example file, see Assembly Language Example. 
 
 -------------------------------------------------------
 
 Assembly Language Example:
 add 1 x0 --This is a comment
-add 0 xAA
-str 1 xAB
-LDR 0 x31A 
+--Comments can be their own line
+add $R0 xAA --registers can be refrenced with $'s
+str $R1 xAB
+LDR $R0 x31A 
 jmp x3FF --x3FF fills all 10 digits of the address
+:lable: add $R0 x0 --this line has a lable
+jmp <lable> --jumps to the point labled in the code
 
 -------------------------------------------------------
 '''
@@ -107,6 +114,9 @@ class Assembler:
 			self.i['OUT'] = Inst('OUT', '01111', 'R')
 			#Add instructions here to make them
 			#part of the default set
+
+			
+			#These instructions are our added ones - comment them out if not in use
 			self.i['ADD_I'] = Inst('ADD_I', '10000', 'R')
 			self.i['ADDE_I'] = Inst('ADDE_I', '10001', 'I')
 			self.i['ADDE_R'] = Inst('ADDE_R', '10010', 'D')
@@ -125,6 +135,8 @@ class Assembler:
 			#if you add any new instruction types to the
 			#default set, make sure to add a matching table
 			#entry
+
+			#These formats are our added ones: comment them out if not in use
 			self.table['D'] = (4, 5, 4, 4, 3)
 			self.table['I'] = (3, 5, 3, 8)
 
@@ -133,6 +145,8 @@ class Assembler:
 			self.regs = {}
 			self.regs['R0'] = 0
 			self.regs['R1'] = 1
+
+			#These registers are our added ones: comment them out if not in use
 			self.regs['S0'] = 2
 			self.regs['S1'] = 3
 			self.regs['S2'] = 4
@@ -235,7 +249,7 @@ class Assembler:
 				s+=self.parseLine(line.strip())
 			s = s.strip().split('\n') #read into memory: we need to know how many lines there are
 			with open(outfile, "w") as o:
-				o.write('DEPTH = {};\n'.format(len(s)))
+				o.write('DEPTH = {};\n'.format(1024))
 				o.write('WIDTH = 16;\n')
 				o.write('ADDRESS_RADIX = UNS;\n')
 				o.write('DATA_RADIX = BIN;\n')
@@ -243,6 +257,8 @@ class Assembler:
 				o.write('BEGIN\n')
 				for ind in range(0, len(s)):
 					o.write('{} : {};\n'.format(str(ind), s[ind]))
+				if len(s) != 1024:
+					o.write('[{}..1023] : {};\n'.format(len(s), '0'*16))
 				o.write('END;')
 		print('{} written'.format(outfile))
 
@@ -254,6 +270,8 @@ def main():
 	#start parsing
 	#a.parseFile((raw_input("Enter your assembly file name:: ")))
 	a.parseToMif((raw_input("Enter your assembly file name:: ")))
+	#uncomment this line to rename your mif (and comment the line above)
+	#a.parseToMif((raw_input("Enter your assembly file name:: ")) (raw_input("Enter your mif file name to save::  ")))
 if __name__ == '__main__':
 	main()
 
