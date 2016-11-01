@@ -6,22 +6,22 @@ They are all in R format.
 
 | Name  | OP Code | Notes                  |
 |-------|---------|------------------------|
-| ADD   | x00     | Adds R to Addr         |
-| STR   | x01     | Puts R in Addr         |
-| LDR   | x02     | Puts Addr in R         |
-| JMP   | x03     | Jump PC to Addr        |
-| JN    | x04     | Jump PC to Addr if R<0 |
-| SUB   | x05     | Subtract $SD from R    |
-| INC   | x06     | Add 1 to R             |
-| OR    | x07     | Sets R to R or Addr    |
-| AND   | x08     | Sets R to R and Addr   |
-| NOT   | x09     | Sets R to not R        |
-| JP    | x0A     | Jump PC to Addr if R>0 |
-| JZ    | x0B     | Jump PC to Addr if R=0 |
-| SHL   | x0C     | Shift R one bit left   |
-| SHR   | x0D     | Shift R one bit right  |
-| IN    | x0E     | R(7 - 0) <- SW(7 - 0)  |
-| OUT   | x0F     | LED(7 - 0) <= R(7 - 0) |
+| ADD   | 00000   | Adds R to Addr         |
+| STR   | 00001   | Puts R in Addr         |
+| LDR   | 00010   | Puts Addr in R         |
+| JMP   | 00011   | Jump PC to Addr        |
+| JN    | 00100   | Jump PC to Addr if R<0 |
+| SUB   | 00101   | Subtract $SD from R    |
+| INC   | 00110   | Add 1 to R             |
+| OR    | 00111   | Sets R to R or Addr    |
+| AND   | 01000   | Sets R to R and Addr   |
+| NOT   | 01001   | Sets R to not R        |
+| JP    | 01010   | Jump PC to Addr if R>0 |
+| JZ    | 01011   | Jump PC to Addr if R=0 |
+| SHL   | 01100   | Shift R one bit left   |
+| SHR   | 01101   | Shift R one bit right  |
+| IN    | 01110   | R(7 - 0) <- SW(7 - 0)  |
+| OUT   | 01111   | LED(7 - 0) <= R(7 - 0) |
 
 ##Added Instructions
 As we add instructions, we will put them here
