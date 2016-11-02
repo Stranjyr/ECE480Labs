@@ -42,6 +42,7 @@ As we add instructions, we will put them here
 | BEQe_r | 11010   | D      | JMP to SDL if SDR=SDG |
 | ROTr   | 11011   | I      | Rotate SDL right by I |
 | ROTl   | 11100   | I      | Rotate SDL left by I  |
+| JMPr   | 11101   | D      | Jump to SDL           |
   
 ##Instruction Formats
 As we create new formats, we will put them here
