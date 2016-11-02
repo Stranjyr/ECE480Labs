@@ -40,6 +40,8 @@ As we add instructions, we will put them here
 | JAL    | 11000   | R      | JMP to addr, store RA |
 | BNEe_r | 11001   | D      | JMP to SDL if SDR!=SDG|
 | BEQe_r | 11010   | D      | JMP to SDL if SDR=SDG |
+| ROTr   | 11011   | I      | Rotate SDL right by I |
+| ROTl   | 11100   | I      | Rotate SDL left by I  |
   
 ##Instruction Formats
 As we create new formats, we will put them here
