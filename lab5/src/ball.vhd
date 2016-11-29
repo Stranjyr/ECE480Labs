@@ -13,7 +13,8 @@ port( pixel_row, pixel_column : in  unsigned(10 downto 0);
 		ball_x, ball_y				: out signed(10 downto 0);
       vert_sync               : in  std_logic;
 		down, up, lft, rgt 	 	: in std_logic;
-		rom_clock 					: in std_logic );
+		rom_clock 					: in std_logic;
+		i_frame 						: in std_logic_vector(2 downto 0));
 end ball;
 
 architecture behavior of ball is
@@ -47,14 +48,14 @@ begin
 		rom_mux_output => frame_out
 	 );
     size       <= to_signed(4,11);
-	 frame_row <= std_logic_vector(pixel_row(2 downto 0) - unsigned(ball_y_pos(2 downto 0)));
-	 frame_col <= std_logic_vector(pixel_column(2 downto 0) - unsigned(ball_x_pos(2 downto 0)));
+	 frame_row <= std_logic_vector(pixel_row(2 downto 0) - unsigned(ball_y_pos(2 downto 0))+ 4);
+	 frame_col <= std_logic_vector(pixel_column(2 downto 0) - unsigned(ball_x_pos(2 downto 0)) + 4);
     -- Colors for pixel data on video signal
     red <=  '1';
     -- Turn off Green and Blue when displaying ball (red "ball" on white background)
-    green <= not ball_on;
-    blue <=  not ball_on;	
-
+    green <=  not ball_on;
+    blue <=   not ball_on;	
+	 frame <= i_frame;
 	 ball_x <= ball_x_pos; --output the position for consumption
 	 ball_y <= ball_y_pos; --output the position for consumption
     rgb_display: process(ball_x_pos, ball_y_pos, pixel_column, pixel_row, size)
@@ -72,11 +73,10 @@ begin
     begin
       -- Move ball once every vertical sync
       if rising_edge(vert_sync) then
-			frame <= std_logic_vector(unsigned(frame) + 1);
 			--Y movement
         -- Stop at the edges of the screen
-        if (ball_y_pos) > screeny - size -2 then
-          ball_y_pos <= to_signed(screeny, 11) - size -2;
+        if (ball_y_pos) > screeny - size -size then
+          ball_y_pos <= to_signed(screeny, 11) - size -size;
         elsif ball_y_pos < 170+size then
           ball_y_pos <= 170+size;
 			 --check which way to mov the ball based on switches
@@ -96,10 +96,10 @@ begin
 		  
 		  --x movement
         -- Stop at the edges of the screen
-        if (ball_x_pos) > screenx - size -2 then
-          ball_x_pos <= to_signed(screenx, 11) - size -2;
-        elsif ball_x_pos < size+2 then
-          ball_x_pos <= size+2;
+        if (ball_x_pos) > screenx - size - size -4 then
+          ball_x_pos <= to_signed(screenx, 11) - size - size -4;
+        elsif ball_x_pos < size+size then
+          ball_x_pos <= size+size;
 			 --check which way to mov the ball based on switches
 			else
 				if lft = '0' then
