@@ -7,16 +7,16 @@ use		ieee.numeric_std.all;
 
 entity text_box is
 	port( 
-			in_0 : in  unsigned(15 downto 0);
-			in_1 : in  unsigned(15 downto 0);
-			in_2 : in  unsigned(15 downto 0);
-			in_3 : in  unsigned(15 downto 0);
-			in_4 : in  unsigned(15 downto 0);
-			in_5 : in  unsigned(15 downto 0);
-			in_6 : in  unsigned(15 downto 0);
-			in_7 : in  unsigned(15 downto 0);
-			in_8 : in  unsigned(15 downto 0);
-			in_9 : in  unsigned(15 downto 0);
+			in_0 : in  unsigned(15 downto 0); --MAR:
+			in_1 : in  unsigned(15 downto 0); --MDR:
+			in_2 : in  unsigned(15 downto 0); --PC :
+			in_3 : in  unsigned(15 downto 0); --IR :
+			in_4 : in  unsigned(15 downto 0); --R0 :
+			in_5 : in  unsigned(15 downto 0); --R1 :
+			in_6 : in  unsigned(15 downto 0); --SW :
+			in_7 : in  unsigned(15 downto 0); --PB :
+			in_8 : in  unsigned(15 downto 0); --x  :
+			in_9 : in  unsigned(15 downto 0); --Y  :
 			vga_red, vga_green,vga_blue : out std_logic;
 			pix_row, pix_col : in  unsigned(10 downto 0);
 			vert_sync      : in std_logic;
@@ -74,8 +74,194 @@ begin
 
     process(pixel_column,pixel_row,r)
     begin
-      if (pixel_column >= 32 and (pixel_row >= 8  and pixel_row <= 15)) then
+												--Labels--
+												
+	       if (pixel_column >= 32 and (pixel_row >= 8  and pixel_row <= 15)) then
         if (pixel_column <= 63) then
+		  
+		  -- MAR:
+          -- Use pixel_col bits 3 and 4 to determine which 4-bit field of
+          -- R to display. Adding "110000" to the 4-bit field from the register
+          -- will generate the character address to get pixel data from
+          -- using the tcgrom.mif data and char_rom.vhd.
+          case pixel_column(4 downto 3) is
+            when "00"   => char_address <= O"15"; --M
+            when "01"   => char_address <= O"1";--A
+            when "10"   => char_address <= O"22";--R
+            when others => char_address <= O"55";--:
+          end case;
+        else
+          -- If we are past the first 4 character columns then display a space character.
+          char_address <= "100000";
+        end if;
+		  --MDR:
+      elsif (pixel_column >= 32 and (pixel_row >= 24  and pixel_row <= 31)) then
+        if (pixel_column <= 63) then
+          -- Use pixel_col bits 3 and 4 to determine which 4-bit field of
+          -- R to display. Adding "110000" to the 4-bit field from the register
+          -- will generate the character address to get pixel data from
+          -- using the tcgrom.mif data and .vhd.
+          case pixel_column(4 downto 3) is
+            when "00"   => char_address <= O"15";--M
+            when "01"   => char_address <= O"4";--D
+            when "10"   => char_address <= O"22";--R
+            when others => char_address <= O"55";--:
+          end case;
+        else
+          -- If we are past the first 4 character columns then display a space character.
+          char_address <= "100000";
+        end if;
+		  
+		  --PC :
+		 elsif (pixel_column >= 32 and (pixel_row >= 40  and pixel_row <= 47)) then
+        if (pixel_column <= 63) then
+          -- Use pixel_col bits 3 and 4 to determine which 4-bit field of
+          -- R to display. Adding "110000" to the 4-bit field from the register
+          -- will generate the character address to get pixel data from
+          -- using the tcgrom.mif data and char_rom.vhd.
+          case pixel_column(4 downto 3) is
+            when "00"   => char_address <= O"20";--P
+            when "01"   => char_address <= O"3";--C
+            when "10"   => char_address <= O"40";-- space
+            when others => char_address <= O"55";--:
+          end case;
+        else
+          -- If we are past the first 4 character columns then display a space character.
+          char_address <= "100000";
+        end if;
+		 
+		 --IR :
+		 elsif (pixel_column >= 32 and (pixel_row >= 56  and pixel_row <= 63)) then
+        if (pixel_column <= 63) then
+          -- Use pixel_col bits 3 and 4 to determine which 4-bit field of
+          -- R to display. Adding "110000" to the 4-bit field from the register
+          -- will generate the character address to get pixel data from
+          -- using the tcgrom.mif data and char_rom.vhd.
+          case pixel_column(4 downto 3) is
+            when "00"   => char_address <= O"";--I
+            when "01"   => char_address <= O"";--R
+            when "10"   => char_address <= O"40";--Space
+            when others => char_address <= O"55";--:
+          end case;
+        else
+          -- If we are past the first 4 character columns then display a space character.
+          char_address <= "100000";
+        end if;
+		  
+		  --R0 :
+		  elsif (pixel_column >= 32 and (pixel_row >= 72  and pixel_row <= 79)) then
+        if (pixel_column <= 63) then
+          -- Use pixel_col bits 3 and 4 to determine which 4-bit field of
+          -- R to display. Adding "110000" to the 4-bit field from the register
+          -- will generate the character address to get pixel data from
+          -- using the tcgrom.mif data and char_rom.vhd.
+          case pixel_column(4 downto 3) is
+            when "00"   => char_address <= O"22";--R
+            when "01"   => char_address <= O"60";--0
+            when "10"   => char_address <= O"40";--Space
+            when others => char_address <= O"55";--:
+          end case;
+        else
+          -- If we are past the first 4 character columns then display a space character.
+          char_address <= "100000";
+        end if;
+		  
+		  --R1 :
+		  elsif (pixel_column >= 32 and (pixel_row >= 88  and pixel_row <= 95)) then
+        if (pixel_column <= 63) then
+          -- Use pixel_col bits 3 and 4 to determine which 4-bit field of
+          -- R to display. Adding "110000" to the 4-bit field from the register
+          -- will generate the character address to get pixel data from
+          -- using the tcgrom.mif data and char_rom.vhd.
+          case pixel_column(4 downto 3) is
+            when "00"   => char_address <= O"22";--R
+            when "01"   => char_address <= O"61";--1
+            when "10"   => char_address <= O"40";--Space
+            when others => char_address <= O"55";--:
+          end case;
+        else
+          -- If we are past the first 4 character columns then display a space character.
+          char_address <= "100000";
+        end if;
+		  
+		  --SW :
+		  elsif (pixel_column >= 32 and (pixel_row >= 104  and pixel_row <= 111)) then
+        if (pixel_column <= 63) then
+          -- Use pixel_col bits 3 and 4 to determine which 4-bit field of
+          -- R to display. Adding "110000" to the 4-bit field from the register
+          -- will generate the character address to get pixel data from
+          -- using the tcgrom.mif data and char_rom.vhd.
+          case pixel_column(4 downto 3) is
+            when "00"   => char_address <= O"23";--S
+            when "01"   => char_address <= O"27";--W
+            when "10"   => char_address <= O"40";--Space
+            when others => char_address <= O"55";--:
+          end case;
+        else
+          -- If we are past the first 4 character columns then display a space character.
+          char_address <= "100000";
+        end if;
+		  
+		  --PB :
+		  elsif (pixel_column >= 32 and (pixel_row >= 120  and pixel_row <= 127)) then
+        if (pixel_column <= 63) then
+          -- Use pixel_col bits 3 and 4 to determine which 4-bit field of
+          -- R to display. Adding "110000" to the 4-bit field from the register
+          -- will generate the character address to get pixel data from
+          -- using the tcgrom.mif data and char_rom.vhd.
+          case pixel_column(4 downto 3) is
+            when "00"   => char_address <= O"20";--P
+            when "01"   => char_address <= O"2";--B
+            when "10"   => char_address <= O"40";--Space
+            when others => char_address <= O"55";--:
+          end case;
+        else
+          -- If we are past the first 4 character columns then display a space character.
+          char_address <= "100000";
+        end if;
+		  
+		  --X  :
+		  elsif (pixel_column >= 32 and (pixel_row >= 136  and pixel_row <= 143)) then
+        if (pixel_column <= 63) then
+          -- Use pixel_col bits 3 and 4 to determine which 4-bit field of
+          -- R to display. Adding "110000" to the 4-bit field from the register
+          -- will generate the character address to get pixel data from
+          -- using the tcgrom.mif data and char_rom.vhd.
+          case pixel_column(4 downto 3) is
+            when "00"   => char_address <= O"30";--X
+            when "01"   => char_address <= O"40";--Space
+            when "10"   => char_address <= O"40";--Space
+            when others => char_address <= O"55";--:
+          end case;
+        else
+          -- If we are past the first 4 character columns then display a space character.
+          char_address <= "100000";
+        end if;
+		  
+		  --Y  :
+		  elsif (pixel_column >= 32 and (pixel_row >= 152  and pixel_row <= 159)) then
+        if (pixel_column <= 63) then
+          -- Use pixel_col bits 3 and 4 to determine which 4-bit field of
+          -- R to display. Adding "110000" to the 4-bit field from the register
+          -- will generate the character address to get pixel data from
+          -- using the tcgrom.mif data and char_rom.vhd.
+          case pixel_column(4 downto 3) is
+            when "00"   => char_address <= O"31";--Y
+            when "01"   => char_address <= O"40";--Space
+            when "10"   => char_address <= O"40";--Space
+            when others => char_address <= O"55";--:
+          end case;
+        else
+          -- If we are past the first 4 character columns then display a space character.
+          char_address <= "100000";
+        end if;
+		  
+												--VALUES--
+	
+		 elseif (pixel_column >= 64 and (pixel_row >= 8  and pixel_row <= 15)) then
+        if (pixel_column <= 95) then
+		  
+		  -- MAR Value
           -- Use pixel_col bits 3 and 4 to determine which 4-bit field of
           -- R to display. Adding "110000" to the 4-bit field from the register
           -- will generate the character address to get pixel data from
@@ -90,12 +276,12 @@ begin
           -- If we are past the first 4 character columns then display a space character.
           char_address <= "100000";
         end if;
-      elsif (pixel_column >= 32 and (pixel_row >= 24  and pixel_row <= 31)) then
-        if (pixel_column <= 63) then
+      elsif (pixel_column >= 64 and (pixel_row >= 24  and pixel_row <= 31)) then
+        if (pixel_column <= 95) then
           -- Use pixel_col bits 3 and 4 to determine which 4-bit field of
           -- R to display. Adding "110000" to the 4-bit field from the register
           -- will generate the character address to get pixel data from
-          -- using the tcgrom.mif data and char_rom.vhd.
+          -- using the tcgrom.mif data and .vhd.
           case pixel_column(4 downto 3) is
             when "00"   => char_address <= r(1)(15 downto 12) + "110000";
             when "01"   => char_address <= r(1)(11 downto  8) + "110000";
@@ -125,7 +311,7 @@ begin
         end if;
 		 
 		 
-		 elsif (pixel_column >= 32 and (pixel_row >= 56  and pixel_row <= 63)) then
+		 elsif (pixel_column >= 64 and (pixel_row >= 56  and pixel_row <= 63)) then
         if (pixel_column <= 63) then
           -- Use pixel_col bits 3 and 4 to determine which 4-bit field of
           -- R to display. Adding "110000" to the 4-bit field from the register
@@ -142,8 +328,8 @@ begin
           char_address <= "100000";
         end if;
 		  
-		  elsif (pixel_column >= 32 and (pixel_row >= 72  and pixel_row <= 79)) then
-        if (pixel_column <= 63) then
+		  elsif (pixel_column >= 64 and (pixel_row >= 72  and pixel_row <= 79)) then
+        if (pixel_column <= 95) then
           -- Use pixel_col bits 3 and 4 to determine which 4-bit field of
           -- R to display. Adding "110000" to the 4-bit field from the register
           -- will generate the character address to get pixel data from
@@ -159,8 +345,8 @@ begin
           char_address <= "100000";
         end if;
 		  
-		  elsif (pixel_column >= 32 and (pixel_row >= 88  and pixel_row <= 95)) then
-        if (pixel_column <= 63) then
+		  elsif (pixel_column >= 64 and (pixel_row >= 88  and pixel_row <= 95)) then
+        if (pixel_column <= 95) then
           -- Use pixel_col bits 3 and 4 to determine which 4-bit field of
           -- R to display. Adding "110000" to the 4-bit field from the register
           -- will generate the character address to get pixel data from
@@ -176,8 +362,8 @@ begin
           char_address <= "100000";
         end if;
 		  
-		  elsif (pixel_column >= 32 and (pixel_row >= 104  and pixel_row <= 111)) then
-        if (pixel_column <= 63) then
+		  elsif (pixel_column >= 64 and (pixel_row >= 104  and pixel_row <= 111)) then
+        if (pixel_column <= 95) then
           -- Use pixel_col bits 3 and 4 to determine which 4-bit field of
           -- R to display. Adding "110000" to the 4-bit field from the register
           -- will generate the character address to get pixel data from
@@ -193,8 +379,8 @@ begin
           char_address <= "100000";
         end if;
 		  
-		  elsif (pixel_column >= 32 and (pixel_row >= 120  and pixel_row <= 127)) then
-        if (pixel_column <= 63) then
+		  elsif (pixel_column >= 64 and (pixel_row >= 120  and pixel_row <= 127)) then
+        if (pixel_column <= 95) then
           -- Use pixel_col bits 3 and 4 to determine which 4-bit field of
           -- R to display. Adding "110000" to the 4-bit field from the register
           -- will generate the character address to get pixel data from
@@ -210,8 +396,8 @@ begin
           char_address <= "100000";
         end if;
 		  
-		  elsif (pixel_column >= 32 and (pixel_row >= 136  and pixel_row <= 143)) then
-        if (pixel_column <= 63) then
+		  elsif (pixel_column >= 64 and (pixel_row >= 136  and pixel_row <= 143)) then
+        if (pixel_column <= 95) then
           -- Use pixel_col bits 3 and 4 to determine which 4-bit field of
           -- R to display. Adding "110000" to the 4-bit field from the register
           -- will generate the character address to get pixel data from
@@ -227,8 +413,8 @@ begin
           char_address <= "100000";
         end if;
 		  
-		  elsif (pixel_column >= 32 and (pixel_row >= 152  and pixel_row <= 159)) then
-        if (pixel_column <= 63) then
+		  elsif (pixel_column >= 64 and (pixel_row >= 152  and pixel_row <= 159)) then
+        if (pixel_column <= 95) then
           -- Use pixel_col bits 3 and 4 to determine which 4-bit field of
           -- R to display. Adding "110000" to the 4-bit field from the register
           -- will generate the character address to get pixel data from
@@ -243,6 +429,7 @@ begin
           -- If we are past the first 4 character columns then display a space character.
           char_address <= "100000";
         end if;
+
 		 else
         -- If we are not in a character row, then display a space character.
         char_address <= "100000";
